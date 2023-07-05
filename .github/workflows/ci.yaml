@@ -1,0 +1,61 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: 'Build and deploy Node.js image to Azure Web Custom Container App: mywebapp9573'
+
+on:
+  push:
+    branches:
+    - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Node.js version
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+    
+    - name: npm install, build, and test
+      run: |
+        npm install
+        npm run build --if-present
+        # npm run test --if-present
+
+    - name: Docker image build
+      uses: azure/docker-login@v1
+      with:
+        login-server: 'mywebappacr4535.azurecr.io' # default: index.docker.io
+        username: 
+        password:   # Can use password but better to use personal access token
+    
+    - name: Docker build and push image to registry tagged using Git commit id
+      run: |
+        docker image build -t basicnodeapi-image .
+        docker image tag basicnodeapi-image mywebappacr4535.azurecr.io/basicnodeapi-image:${{ github.sha }}
+        docker image push mywebappacr4535.azurecr.io/basicnodeapi-image:${{ github.sha }}
+        docker image tag basicnodeapi-image mywebappacr4535.azurecr.io/basicnodeapi-image:latest
+        docker image push mywebappacr4535.azurecr.io/basicnodeapi-image:latest
+
+# Add these lines in if you are not using a user-assigned managed identity to monitor the pushes to the ACR
+# or you are using DockerHub
+
+    # - name: 'Az CLI login'
+      # uses: azure/login@v1      # Use Workload Identity Federation
+      # with:
+        # client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        # tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        # subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    # - name: 'Deploy to Azure Web App'
+      # uses: azure/webapps-deploy@v2    # Must login to Azure first
+      # with: 
+        # app-name: 'mywebapp9573'
+        # slot-name: '${slot-name}'
+        # publish-profile: ${{ secrets.${AZURE_WEBAPP_PUBLISH_PROFILE} }}
+        # images: mywebappacr4535.azurecr.io/basicnodeapi-image:${{ github.sha }}
