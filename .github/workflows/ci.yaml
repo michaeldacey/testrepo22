@@ -36,7 +36,7 @@ jobs:
     
     - name: Docker build and push image to registry tagged using Git commit id
       run: |
-        docker image build -t basicnodeapi-image .
+        docker image build --target azureappservice -t basicnodeapi-image .
         docker image tag basicnodeapi-image mywebappacr12224.azurecr.io/basicnodeapi-image:${{ github.sha }}
         docker image push mywebappacr12224.azurecr.io/basicnodeapi-image:${{ github.sha }}
         docker image tag basicnodeapi-image mywebappacr12224.azurecr.io/basicnodeapi-image:latest
