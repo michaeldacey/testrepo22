@@ -7,7 +7,7 @@ service.use(express.json());
 service.use(express.urlencoded({extended:true}));
 
 service.get('/', (req,res) => {
-	res.send("Welcome!");
+	res.send("Welcome from mike!");
 });
 
 service.get('/hello/:name', (req,res) => {
