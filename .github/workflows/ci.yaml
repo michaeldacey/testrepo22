@@ -42,7 +42,7 @@ jobs:
 
     - name: ACR build and push image
       run: |
-        az acr build --resource-group myfirst-webapp-gp --image mywebappacr31105.azurecr.io/basicnodeapi-image:${{ github.sha }} \
+        az acr build --debug --resource-group myfirst-webapp-gp --image mywebappacr31105.azurecr.io/basicnodeapi-image:${{ github.sha }} \
           --registry mywebappacr31105.azurecr.io --file "Dockerfile" --target azureappservice .
 
     - name: 'Deploy to Azure Web App'
