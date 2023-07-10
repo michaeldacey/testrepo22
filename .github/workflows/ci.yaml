@@ -1,7 +1,11 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: 'Build and deploy Node.js image to Azure Web Custom Container App: mywebapp30956'
+name: 'Build and deploy Node.js image to Azure Web Custom Container App: mywebapp15461'
+
+permissions:
+  id-token: write
+  contents: read
 
 on:
   push:
@@ -14,7 +18,16 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - name: 'Checkout GitHub Action'
+      uses: actions/checkout@v3
+      
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{secrets.AZURE_CLIENT_ID}}
+        tenant-id: ${{secrets.AZURE_TENANT_ID}}
+        subscription-id: ${{secrets.AZURE_SUBSCRIPTION_ID}}
+
 
     - name: Set up Node.js version
       uses: actions/setup-node@v3
@@ -27,35 +40,18 @@ jobs:
         npm run build --if-present
         # npm run test --if-present
 
-    - name: Docker image build
-      uses: azure/docker-login@v1
-      with:
-        login-server: 'mywebappacr12224.azurecr.io' # default: index.docker.io
-        username: ${{secrets.ACR_USERNAME}}
-        password: ${{secrets.ACR_PASSWORD}}  # Can use password but better to use personal access token
-    
-    - name: Docker build and push image to registry tagged using Git commit id
+    - name: ACR build and push image
       run: |
-        docker image build --target azureappservice -t basicnodeapi-image .
-        docker image tag basicnodeapi-image mywebappacr12224.azurecr.io/basicnodeapi-image:${{ github.sha }}
-        docker image push mywebappacr12224.azurecr.io/basicnodeapi-image:${{ github.sha }}
-        docker image tag basicnodeapi-image mywebappacr12224.azurecr.io/basicnodeapi-image:latest
-        docker image push mywebappacr12224.azurecr.io/basicnodeapi-image:latest
+        az acr build --image mywebappacr31105.azurecr.io/basicnodeapi-image:${{ github.sha }} \
+        --registry mywebappacr31105.azurecr.io --file "Dockerfile" --target azureappservice .
 
-# Add these lines in if you are not using a user-assigned managed identity to monitor the pushes to the ACR
-# or you are using DockerHub
+    - name: 'Deploy to Azure Web App'
+      uses: azure/webapps-deploy@v2    # Must login to Azure first
+      with: 
+        app-name: 'mywebapp15461'
+        slot-name: 'production'
+        images: mywebappacr31105.azurecr.io/basicnodeapi-image:${{ github.sha }}
 
-    # - name: 'Az CLI login'
-      # uses: azure/login@v1      # Use Workload Identity Federation
-      # with:
-        # client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        # tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        # subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-    # - name: 'Deploy to Azure Web App'
-      # uses: azure/webapps-deploy@v2    # Must login to Azure first
-      # with: 
-        # app-name: 'mywebapp30956'
-        # slot-name: '${slot-name}'
-        # publish-profile: ${{ secrets.${AZURE_WEBAPP_PUBLISH_PROFILE} }}
-        # images: mywebappacr12224.azurecr.io/basicnodeapi-image:${{ github.sha }}
+    - name: Azure logout
+      run: |
+        az logout
