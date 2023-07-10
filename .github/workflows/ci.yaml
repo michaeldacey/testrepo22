@@ -43,7 +43,7 @@ jobs:
     - name: ACR build and push image
       run: |
         az acr build --image mywebappacr31105.azurecr.io/basicnodeapi-image:${{ github.sha }} \
-        --registry mywebappacr31105.azurecr.io --file "Dockerfile" --target azureappservice .
+          --registry mywebappacr31105.azurecr.io --file "Dockerfile" --target azureappservice .
 
     - name: 'Deploy to Azure Web App'
       uses: azure/webapps-deploy@v2    # Must login to Azure first
