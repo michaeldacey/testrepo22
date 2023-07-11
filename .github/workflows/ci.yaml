@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: 'Build and deploy Node.js image to Azure Web Custom Container App: mywebapp15461'
+name: 'Build and deploy Node.js image to Azure Web Custom Container App: mywebapp16676'
 
 permissions:
   id-token: write
@@ -42,15 +42,15 @@ jobs:
 
     - name: ACR build and push image
       run: |
-        az acr build --resource-group myfirst-webapp-gp --image mywebappacr31105.azurecr.io/basicnodeapi-image:${{ github.sha }} \
-          --registry mywebappacr31105.azurecr.io --file "Dockerfile" --target azureappservice .
+        az acr build --resource-group myfirst-webapp-gp --image mywebappacr17569.azurecr.io/basicnodeapi-image:${{ github.sha }} \
+          --registry mywebappacr17569.azurecr.io --file "Dockerfile" --target azureappservice .
 
     - name: 'Deploy to Azure Web App'
       uses: azure/webapps-deploy@v2    # Must login to Azure first
       with: 
-        app-name: 'mywebapp15461'
+        app-name: 'mywebapp16676'
         slot-name: 'production'
-        images: mywebappacr31105.azurecr.io/basicnodeapi-image:${{ github.sha }}
+        images: mywebappacr17569.azurecr.io/basicnodeapi-image:${{ github.sha }}
 
     - name: Azure logout
       run: |
